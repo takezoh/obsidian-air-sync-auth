@@ -31,11 +31,11 @@ export function redirectPage(callbackUri: string, appName: string): string {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline';">
-  <title>Smart Sync - OAuth Redirect</title>
+  <title>Air Sync - OAuth Redirect</title>
   <style>${baseStyle}</style>
 </head>
 <body>
-  <h1>Smart Sync</h1>
+  <h1>Air Sync</h1>
   <p class="message">Redirecting to ${safeAppName}&hellip;</p>
   <div class="fallback">
     <p>If it doesn't open automatically, click the button below.</p>
@@ -53,11 +53,11 @@ export function errorPage(message: string): string {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline';">
-  <title>Smart Sync - Error</title>
+  <title>Air Sync - Error</title>
   <style>${baseStyle}</style>
 </head>
 <body>
-  <h1>Smart Sync</h1>
+  <h1>Air Sync</h1>
   <p class="message error">${escapeHtml(message)}<br>Please try signing in again from your app.</p>
 </body>
 </html>`;
@@ -65,9 +65,9 @@ export function errorPage(message: string): string {
 
 function escapeHtml(s: string): string {
   return s
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }

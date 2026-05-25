@@ -1,6 +1,6 @@
-# smart-sync-auth
+# air-sync-auth
 
-OAuth relay server for [Smart Sync for Obsidian](https://github.com/takezoh/obsidian-smart-sync). Performs server-side Google OAuth token exchange so the Client Secret stays off the client.
+OAuth relay server for [Air Sync for Obsidian](https://github.com/takezoh/obsidian-air-sync). Performs server-side Google OAuth token exchange so the Client Secret stays off the client.
 
 ## Overview
 
@@ -9,7 +9,7 @@ Google OAuth requires redirect URIs to use `https://` — custom schemes like `o
 ```
 [Plugin] → [Google OAuth] → [Worker: /google/callback]
                                  ↓ code → token exchange
-                            [obsidian://smart-sync-auth?access_token=...&refresh_token=...]
+                            [obsidian://air-sync-auth?access_token=...&refresh_token=...]
 ```
 
 ## Endpoints
@@ -21,9 +21,9 @@ Google OAuth requires redirect URIs to use `https://` — custom schemes like `o
 
 ## `docs/callback/`
 
-Custom OAuth redirect page for users who bring their own Google OAuth credentials. Hosted on GitHub Pages at `smartsync.takezo.dev/callback/`.
+Custom OAuth redirect page for users who bring their own Google OAuth credentials. Hosted on GitHub Pages at `airsync.takezo.dev/callback/`.
 
-When a custom OAuth user completes Google sign-in, Google redirects to this page with `?code=...&state=...`. The page then redirects to `obsidian://smart-sync-auth?code=...&state=...` so the plugin can exchange the code for tokens directly (with PKCE), without going through the auth server.
+When a custom OAuth user completes Google sign-in, Google redirects to this page with `?code=...&state=...`. The page then redirects to `obsidian://air-sync-auth?code=...&state=...` so the plugin can exchange the code for tokens directly (with PKCE), without going through the auth server.
 
 Unlike the built-in flow (`/google/callback` on the Worker), no server-side token exchange happens — the authorization code is passed through as-is.
 
@@ -31,8 +31,8 @@ Unlike the built-in flow (`/google/callback` on the Worker), no server-side toke
 
 | Domain | Host | Purpose |
 |--------|------|---------|
-| `smartsync.takezo.dev` | GitHub Pages | Landing page, privacy policy, terms of service |
-| `auth-smartsync.takezo.dev` | Cloudflare Workers | OAuth token exchange relay |
+| `airsync.takezo.dev` | GitHub Pages | Landing page, privacy policy, terms of service |
+| `auth-airsync.takezo.dev` | Cloudflare Workers | OAuth token exchange relay |
 
 ## License
 
