@@ -34,9 +34,19 @@ function htmlResponse(body: string, status = 200): Response {
   });
 }
 
+/** Decode a base64url or legacy standard-base64 state into its JSON payload. */
+function decodeState(raw: string): { app?: unknown; nonce?: unknown } {
+  // Accept both encodings: the plugin now emits base64url (URL-safe), but older
+  // released versions emit standard base64. Normalize url-safe chars back to
+  // standard and re-pad before atob so either form decodes.
+  const b64 = raw.replace(/-/g, '+').replace(/_/g, '/');
+  const padded = b64 + '='.repeat((4 - (b64.length % 4)) % 4);
+  return JSON.parse(atob(padded));
+}
+
 function parseState(raw: string): StatePayload | null {
   try {
-    const json = JSON.parse(atob(raw));
+    const json = decodeState(raw);
     if (typeof json.app === 'string' && typeof json.nonce === 'string') {
       return json as StatePayload;
     }
@@ -80,7 +90,8 @@ export async function handleCallback(request: Request, env: Env): Promise<Respon
   });
 
   if (!tokenRes.ok) {
-    const errorBody = await tokenRes.text();
+    // The callback path returns a user-facing HTML error page, so Google's raw
+    // error body is intentionally not surfaced — only the status drives the copy.
     const detail = tokenRes.status >= 500
       ? `Google server error (${tokenRes.status})`
       : `Token exchange failed (${tokenRes.status})`;
