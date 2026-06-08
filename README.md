@@ -45,11 +45,22 @@ When a custom OAuth user completes Google sign-in, Google redirects to this page
 
 Unlike the built-in flow (`/google/callback` on the Worker), no server-side token exchange happens — the authorization code is passed through as-is.
 
+**Dropbox reuses this same page — no Worker route.** Dropbox auth is in-plugin Authorization Code + PKCE, so its callback returns `?code=...&state=...` exactly like custom Google OAuth. The plugin generates the relay-compatible state, Dropbox redirects here, and this page bounces it to `obsidian://air-sync-auth`, where the plugin exchanges the code for tokens directly with Dropbox (the `code_verifier` is the proof — no client secret, no `/dropbox/callback` Worker route). In short: the Worker is the **confidential** path (server-held secret, needed only by built-in Google); `docs/callback/` is the **no-secret** path, shared by custom Google (PKCE) and Dropbox (PKCE).
+
+## `docs/dropbox-folder/`
+
+Hosts the **Dropbox Chooser** so the user can pick which remote folder a vault syncs into. The plugin can't load the remote `dropins.js` inside Obsidian (remote code is disallowed, and the Chooser validates the page origin), so it opens this page in the browser — the same indirection as auth. The page loads the Chooser, the user picks a folder, and it bounces the result to `obsidian://air-sync-folder?id=…&name=…&state=…` (a backend-agnostic scheme, kept separate from `air-sync-auth`), which the plugin routes to the active backend to bind.
+
+Two App-Folder caveats the plugin handles, because the Chooser **always browses the whole Dropbox and can't be limited to the app folder**:
+
+- Air Sync uses App Folder scope, so its token can only address ids under `/Apps/Air Sync/`. The plugin verifies the picked id with `get_metadata` and rejects anything outside the app folder with a clear message rather than silently failing to sync.
+- This page's domain must be added to the **Chooser domain allowlist** in the Dropbox App Console (and the Chooser/Drop-ins capability enabled), or the Chooser renders "App is misconfigured". The `data-app-key` placeholder in `index.html` must be filled with the Dropbox app key before deploy.
+
 ## Infrastructure
 
 | Domain | Host | Purpose |
 |--------|------|---------|
-| `airsync.takezo.dev` | GitHub Pages | Landing page, privacy policy, terms of service, custom-OAuth callback |
+| `airsync.takezo.dev` | GitHub Pages | Landing page, privacy policy, terms of service, custom-OAuth callback, Dropbox Chooser |
 | `auth-airsync.takezo.dev` | Cloudflare Workers | OAuth token exchange relay |
 
 ## Local development
