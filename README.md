@@ -31,8 +31,19 @@ Unlike the built-in flow (`/google/callback` on the Worker), no server-side toke
 
 | Domain | Host | Purpose |
 |--------|------|---------|
-| `airsync.takezo.dev` | GitHub Pages | Landing page, privacy policy, terms of service |
+| `airsync.takezo.dev` | GitHub Pages | Landing page, privacy policy, terms of service, custom-OAuth callback |
 | `auth-airsync.takezo.dev` | Cloudflare Workers | OAuth token exchange relay |
+
+## Local development
+
+The worker has its own toolchain (Wrangler). Work on it from `worker/`:
+
+```bash
+cd worker
+npm install
+npm run dev      # wrangler dev
+npx tsc -noEmit  # type-check
+```
 
 ## License
 
