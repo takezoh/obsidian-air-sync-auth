@@ -18,6 +18,9 @@
       URL FRAGMENT (#token=…) — the fragment is never sent to this host and is
       scrubbed from history immediately on load. We never put the token in the query
       and never forward it in the obsidian:// redirect (only id/name/state go back).
+      The plugin also passes the (public, referrer-restricted) Picker API key as
+      ?apiKey= so it owns the key; the embedded EMBEDDED_API_KEY below is only a
+      fallback for when the param is absent.
 
       Selecting a folder via the Picker with setAppId(<project number>) is what grants
       the app (the same OAuth client whose token this is) access to that folder under
@@ -25,8 +28,8 @@
 
       Requires, in Google Cloud Console (project 135801498656): the Google Picker API
       enabled and an API key restricted to the Picker API + the HTTP referrer
-      https://airsync.takezo.dev/* (placeholder below). The page is inert until
-      deployed to airsync.takezo.dev and the key is filled in.
+      https://airsync.takezo.dev/*. The page is inert until deployed to
+      airsync.takezo.dev (the referrer restriction binds the key to that origin).
 
       NOTE: the Picker's exact CSP frame-src/connect-src hosts drift across Google's
       iframe-host migrations. If the Picker renders blank, widen this allowlist
@@ -87,13 +90,23 @@
       (function () {
         // ── Cloud Console placeholders ─────────────────────────────────────────
         var APP_ID = "135801498656"; // project number of the built-in OAuth client
-        // Picker API key — safe to ship in client HTML ONLY because it is restricted in
-        // Google Cloud Console to the Picker API + the HTTP referrer airsync.takezo.dev/*.
-        var API_KEY = "AIzaSyDyXTKejmlaTcBIDCx3lJYFhDMmyRKRZwc";
+        // Picker API key. The plugin passes the (public, referrer-restricted) key as
+        // ?apiKey= so it is the single source of truth; this embedded copy is only a
+        // fallback for when the param is absent (older plugin builds / direct access).
+        // Safe to ship in client HTML ONLY because it is restricted in Google Cloud
+        // Console to the Picker API + the HTTP referrer airsync.takezo.dev/*.
+        var EMBEDDED_API_KEY = "AIzaSyDyXTKejmlaTcBIDCx3lJYFhDMmyRKRZwc";
 
         var REDIRECT_BASE = "obsidian://air-sync-folder";
         var params = new URLSearchParams(window.location.search);
         var state = params.get("state") || "";
+        // Prefer the plugin-supplied key; ignore a malformed param (it only ever reaches
+        // setDeveloperKey as a string, but constrain it to the API-key charset anyway)
+        // and fall back to the embedded key so the Picker always has a usable key.
+        var apiKeyParam = params.get("apiKey") || "";
+        var API_KEY = /^[A-Za-z0-9_-]+$/.test(apiKeyParam)
+          ? apiKeyParam
+          : EMBEDDED_API_KEY;
 
         // Read the access token from the fragment, then scrub it from the URL/history
         // immediately — before anything else runs — so it doesn't linger in history.
