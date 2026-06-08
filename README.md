@@ -54,7 +54,7 @@ Hosts the **Dropbox Chooser** so the user can pick which remote folder a vault s
 Two App-Folder caveats the plugin handles, because the Chooser **always browses the whole Dropbox and can't be limited to the app folder**:
 
 - Air Sync uses App Folder scope, so its token can only address ids under `/Apps/Air Sync/`. The plugin verifies the picked id with `get_metadata` and rejects anything outside the app folder with a clear message rather than silently failing to sync.
-- This page's domain must be added to the **Chooser domain allowlist** in the Dropbox App Console (and the Chooser/Drop-ins capability enabled), or the Chooser renders "App is misconfigured". The `data-app-key` placeholder in `index.html` must be filled with the Dropbox app key before deploy.
+- This page's domain must be added to the **Chooser domain allowlist** in the Dropbox App Console (and the Chooser/Drop-ins capability enabled), or the Chooser renders "App is misconfigured". The app key is **not** baked into `index.html`: the plugin passes it as `?appKey=…` and the page hands it to `Dropbox.init()`, so the plugin is the single source of truth and this page needs no pre-deploy substitution. (The key is a public, non-secret value; the Chooser is gated by the domain allowlist, not key secrecy.)
 
 ## Infrastructure
 
