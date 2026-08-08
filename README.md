@@ -12,11 +12,17 @@ Google OAuth requires redirect URIs to use `https://` — custom schemes like `o
                             [obsidian://air-sync-auth?access_token=...&refresh_token=...]
 ```
 
+Current plugin versions use Google's top-level OAuth Picker and receive
+`picked_file_ids` through this same Worker callback. The hosted
+`docs/googledrive-folder/` PickerBuilder page remains deployed unchanged for older
+plugin versions, so rolling out the new flow does not break them. Current custom OAuth
+uses an explicit folder ID and does not invoke either Picker flow.
+
 ## Endpoints
 
 | Method | Path | Description |
 |--------|------|-------------|
-| GET | `/google/callback` | Google OAuth redirect → token exchange → `obsidian://` redirect |
+| GET | `/google/callback` | Google OAuth/Picker redirect → token exchange → `obsidian://` redirect; preserves `picked_file_ids` |
 | POST | `/google/token/refresh` | Refresh token → new access token (JSON) |
 | GET | `/pcloud/callback` | pCloud OAuth redirect → token exchange → `obsidian://` redirect |
 

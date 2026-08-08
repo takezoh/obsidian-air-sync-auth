@@ -60,6 +60,7 @@ export async function handleCallback(request: Request, env: Env): Promise<Respon
   const url = new URL(request.url);
   const code = url.searchParams.get('code');
   const stateRaw = url.searchParams.get('state');
+  const pickedFileIds = url.searchParams.get('picked_file_ids');
 
   if (!code || !stateRaw) {
     return htmlResponse(errorPage('Missing authentication parameters.'), 400);
@@ -107,6 +108,9 @@ export async function handleCallback(request: Request, env: Env): Promise<Respon
   });
   if (tokens.refresh_token) {
     callbackParams.set('refresh_token', tokens.refresh_token);
+  }
+  if (pickedFileIds) {
+    callbackParams.set('picked_file_ids', pickedFileIds);
   }
 
   const callbackUri = `${appConfig.redirectBase}?${callbackParams.toString()}`;
